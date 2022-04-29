@@ -8,13 +8,13 @@ import scrapy
 
 class Company(scrapy.Item):
     name = scrapy.Field()
+    name_u = scrapy.Field()
     url = scrapy.Field()
-    dateline = scrapy.Field()
+    deadline = scrapy.Field()
     address = scrapy.Field()
     wages = scrapy.Field()
     job_title = scrapy.Field()
-    is_A = scrapy.Field() # アルバイト[A]
-    is_P = scrapy.Field() # パート[P]
-    is_T = scrapy.Field() # 派遣社員[派]
-    is_C = scrapy.Field() # 契約社員[契]
-    is_F = scrapy.Field() # 正社員[社]
+    preferences = scrapy.Field()
+    statuses = scrapy.Field()
+    target = scrapy.Field()
+    time = scrapy.Field()
