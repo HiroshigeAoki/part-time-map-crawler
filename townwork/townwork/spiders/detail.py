@@ -1,11 +1,9 @@
-from gc import callbacks
-from http.client import ImproperConnectionState
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 import json
 import re
 from scrapy.shell import inspect_response
-
+from bs4 import BeautifulSoup
 
 from townwork.items import Company
 
@@ -15,49 +13,33 @@ class DetailSpider(CrawlSpider):
     with open('urls.json') as f:
         start_urls =  list(json.load(f)[0].values())
 
-    print(f'starg url: {start_urls}')
-
     rules = [
         Rule(LinkExtractor(allow=r'(/\w+)+/\?page=\d+'), follow=True), # ページ遷移1~
-        Rule(LinkExtractor(allow=r'/detail/clc_\d+/', restrict_xpaths='//*[@id="jsi-content-wrapper"]/div'), callback='parse_detail') # 詳細ページをparse
+        Rule(LinkExtractor(allow=[r'/detail/clc_\d+/joid_\w+/', r'/detail/clc_\d+/\?opf=\w+'], restrict_xpaths='//*[@id="jsi-content-wrapper"]/div'), callback='parse_detail') # 詳細ページをparse
     ]
 
     def parse_detail(self, response):
         item = Company()
-
         item["url"] = response.url
-        #inspect_response(response, self)
+        item['name'] = BeautifulSoup(response.css('.jsc-company-txt').get()).getText().strip()
+        item['preferences'] = BeautifulSoup(response.css('.job-detail-merit-inner').get()).getText().strip().split('\n')
+        # inspect_response(response, self)
+        dt_list = response.css('dt')
+        for dt in dt_list:
+            dt_value = dt.css('::text').get()
+            if dt_value == '職種' and not 'job_title' in item.keys():
+                item['job_title'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip()
+            elif dt_value == '掲載期間' and not 'deadline' in item.keys():
+                item['deadline'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip()
+            elif dt_value == '会社住所' and not 'address' in item.keys():
+                item['address'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip()
+            elif dt_value == '給与' and not 'wages' in item.keys():
+                item['wages'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip()
+            elif dt_value == '対象となる方・資格' and not 'target' in item.keys():
+                item['target'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip()
+            elif dt_value == '勤務期間' and not 'time' in item.keys():
+                item['time'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip()
 
-        # 紹介画像無し
-        if len(response.xpath('//*[@id="jsi-slideshow"]/div[1]/ul/li[1]/div[1]/img')) == 0:
-            item["name"] = response.xpath('//*[@id="jsi-content-wrapper"]/div[3]/div/div[2]/div[1]/h3/text()').get().strip()
-            item["dateline"] = response.xpath('//*[@id="jsi-content-wrapper"]/div[3]/div/div[2]/div[3]/div/div/p/text()').get().strip()
-            item["wages"] = response.xpath('//*[@id="jsi-content-wrapper"]/div[3]/div/div[2]/div[2]/div[2]/div/dl[2]/dd/p/span/text()').get().strip()
-            item["job_title"] = response.xpath('//*[@id="jsi-content-wrapper"]/div[3]/div/div[2]/div[2]/div[2]/div/dl[1]/dd/p/span/text()').get().strip()
-            statuses =  re.findall(r'\[.+?\]', item['job_title']) # 雇用形態
-            item['address'] = response.xpath('//*[@id="js-detailArea"]/div[10]/div/dl[1]/dd/p')
-
-        # 紹介画像あり
-        else:
-            item["name"] = response.xpath('//*[@id="js-detailArea"]/div[1]/h3/span[2]/text()').get().strip()
-            item["dateline"] = response.xpath('//*[@id="js-detailArea"]/div[3]/div/div/p/text()').get().strip()
-            item["wages"] = response.xpath('//*[@id="js-detailArea"]/div[2]/div[2]/div[2]/dl[2]/dd/p/span/text()').get().strip()
-            item["job_title"] = response.xpath('//*[@id="js-detailArea"]/div[2]/div[2]/div[2]/dl[1]/dd/p/span/text()').get().strip()
-            statuses =  re.findall(r'\[.+?\]', item['job_title']) # 雇用形態
-            item['address'] = response.xpath('//*[@id="js-detailArea"]/div[11]/div/dl[3]/dd/p')
-
-        if '[Ａ]' in statuses:
-            item["is_A"] = True # アルバイト[A]
-        if '[Ｐ]' in statuses:
-            item["is_P"] = True # パート[P]
-        if '[派]' in statuses:
-            item["is_T"] = True # 派遣社員[派]
-        if '[契]' in statuses:
-            item["is_C"] = True # 契約社員[契]
-        if '[社]' in statuses:
-            item["is_F"] = True # 正社員[社]
+        item['statuses'] =  re.findall(r'\[.+?\]', item['job_title']) # 雇用形態
 
         yield item
-
-
-
