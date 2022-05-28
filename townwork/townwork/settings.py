@@ -63,9 +63,13 @@ DOWNLOAD_DELAY = 5
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
+ITEM_PIPELINES = {
 #    'townwork.pipelines.TownworkPipeline': 300,
-#}
+    'scrapy_mongodb.MongoDBPipline': 800, # https://github.com/sebdah/scrapy-mongodb
+}
+MONGODB_URI = 'mongodb://localhost:27017'
+MONGODB_DATABASE = 'scrapy'
+MONGODB_COLLECTION = 'my_items'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
