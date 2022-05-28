@@ -23,7 +23,7 @@ class DetailSpider(CrawlSpider):
         item["url"] = response.url
         item['name'] = BeautifulSoup(response.css('.jsc-company-txt').get()).getText().strip()
         item['preferences'] = BeautifulSoup(response.css('.job-detail-merit-inner').get()).getText().strip().split('\n')
-        # inspect_response(response, self)
+        #inspect_response(response, self)
         dt_list = response.css('dt')
         for dt in dt_list:
             dt_value = dt.css('::text').get()
@@ -37,8 +37,14 @@ class DetailSpider(CrawlSpider):
                 item['wages'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip()
             elif dt_value == '対象となる方・資格' and not 'target' in item.keys():
                 item['target'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip()
-            elif dt_value == '勤務期間' and not 'time' in item.keys():
-                item['time'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip()
+            elif dt_value == '勤務期間' and not 'working_hours' in item.keys():
+                item['working_hours'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip()
+            elif dt_value == '勤務地' and not 'lat' in item.keys() and not 'lon' in item.keys():
+                a_tag = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).find('a')
+                if a_tag is None:
+                    continue
+                item['lat'] = a_tag['data-lat']
+                item['lon'] = a_tag['data-lon']
 
         item['statuses'] =  re.findall(r'\[.+?\]', item['job_title']) # 雇用形態
 
