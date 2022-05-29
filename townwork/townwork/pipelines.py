@@ -8,7 +8,7 @@
 from scrapy.exceptions import DropItem
 from pymongo import MongoClient
 
-class ValidationPipline: #TODO:後で書く。
+class ValidationPipline: #TODO:後で書く。locが空のやつ住所からlocを求める。
     def process_item(self, item, spider):
         if not item['']:
             raise DropItem('Missing title')

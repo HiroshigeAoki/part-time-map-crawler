@@ -18,5 +18,5 @@ class Company(scrapy.Item):
     statuses = scrapy.Field()
     target = scrapy.Field()
     working_hours = scrapy.Field()
-    lat = scrapy.Field()
-    lon = scrapy.Field()
+    loc = scrapy.Field()
+    fetched_date = scrapy.Field()
