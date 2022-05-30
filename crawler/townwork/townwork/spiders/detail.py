@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from townwork.items import Company
 import os, sys
 sys.path.append(os.pardir)
-from backend.organize_db import OrganizeDB
+from crawler.organize_db import OrganizeDB
 
 class DetailSpider(CrawlSpider):
     name = 'detail'
