@@ -49,6 +49,9 @@ class DetailSpider(CrawlSpider):
                 item['job_title'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip()
             elif dt_value == '掲載期間' and not 'deadline' in item.keys():
                 period = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip()
+                if period is None: # TODO: デバックする。
+                    item['deadline'] = datetime.datetime.now()
+                    continue
                 item['deadline'] = datetime.datetime(*map(int, re.findall(r'～(\d+)年(\d+)月(\d+)日(\d+):(\d+)', period)[0]))
             elif dt_value == '会社住所' and not 'address' in item.keys():
                 item['address'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get()).getText().strip().replace('\u3000', ' ')
