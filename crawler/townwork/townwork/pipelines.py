@@ -7,6 +7,7 @@
 # useful for handling different item types with a single interface
 from scrapy.exceptions import DropItem
 from pymongo import MongoClient
+from backend.config import get_config
 
 class ValidationPipline: #TODO:後で書く。locが空のやつ住所からlocを求める。
     def process_item(self, item, spider):
@@ -19,9 +20,9 @@ class ValidationPipline: #TODO:後で書く。locが空のやつ住所からloc�
 
 class MongoPipeline:
     def open_spider(self, spider):
-        self.client = MongoClient('localhost', 27017)
-        self.db = self.client['scraping-book']
-        self.collection = self.db['item']
+        config=get_config()
+        client = MongoClient(config.db_path)
+        self.collection = client.db['item']
     
     def close_spider(self, spider):
         self.client.close()
