@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>自作のtownworkMap</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <!--<div class="app">
+      <p class="label">ポエムテキストを下記に入力してください。</p>
+      <textarea id="mansion-poem-textinput" class="text" rows="5"></textarea>
+      <p class="label">物件名を下記に入力してください。</p>
+      <textarea id="mansion-poem-nameinput" class="text" rows="5"></textarea>
+      <p class="label">キャッチコピーを下記に入力してください。</p>
+      <textarea id="mansion-poem-copyinput" class="text" rows="5"></textarea>
+      <button id="mansion-poem-submit" class="submit">更新</button>
+    </div>-->
+      <div class="app">
+        <p class="label">希望通勤手段を選択してください</p>
+          <input id="commuting_method" type="checkbox" name="commuting_time" value="101">徒歩
+          <input id="commuting_method" type="checkbox" name="commuting_time" value="102">自転車
+          <input id="commuting_method" type="checkbox" name="commuting_time" value="103">バス
+          <input id="commuting_method" type="checkbox" name="commuting_time" value="104">車・バイク
+
+        <p class="label">希望通勤時間を選択してください</p>  
+          <input type="range" id="commuting_time" name="volume" min="0" max="11">
+          
+        <p class="label">希望勤務時間を選択してください</p>  
+          <input type="range" id="work_time" name="volume" min="0" max="11">
+
+        <!--<textarea id="mansion-poem-textinput" class="text" rows="5"></textarea>-->
+        <p class="label">職種を選択してください</p>
+          <input id="profession" type="checkbox" name="profession" value="102">飲食店
+          <input id="profession" type="checkbox" name="profession" value="102">塾講師
+          <input id="profession" type="checkbox" name="profession" value="102">デスクワーク
+        <!--<textarea id="mansion-poem-nameinput" class="text" rows="5"></textarea>-->
+        <p class="label">こだわりを選択してください</p><!--チェックボックス-->
+          <input id="favorite" type="checkbox" name="favorite" value="103">髪色自由
+          <input id="favorite" type="checkbox" name="favorite" value="103">面接無し
+          <input id="favorite" type="checkbox" name="favorite" value="103">履歴書なし
+        <!--<textarea id="mansion-poem-copyinput" class="text" rows="5"></textarea>-->
+        <button id="mybtn" value="searchButton" class="submit">検索</button>
+      </div>
+
+      <script  type="text/javascript" src="popup.js"></script>
+  
+    <!--
+    This HTML file opens when you click on icon from the toolbar.
+    To begin the development, run `npm run watch`.
+    To create a production bundle, use `npm run build`.
+  --></body>
+</html>
