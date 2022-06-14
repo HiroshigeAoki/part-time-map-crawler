@@ -31,7 +31,6 @@
    
    //位置情報取得
    getPosition();
-  
  });
  
 //---------位置情報取得----
@@ -46,28 +45,34 @@ else {
 // 現在地取得処理
 function getPosition() {
   // 現在地を取得
-  navigator.geolocation.getCurrentPosition(
+  navigator.geolocation.getCurrentPosition(success, error);
     // 取得成功した場合
-    function (position) {
+    function success(position) {
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
       alert("緯度:"+lat+",経度"+lng);
       const latlng = new google.maps.LatLng(lat, lng);
-  
-      //メソッド呼び出し
-      //map作成、中心地設定
-      const map = displayMap(latlng);
-      //位置情報をマーカーして、マーカーを変える。
-      const markers = addMarkers(map);
-      //近くの店舗を群で表示
-      clusterMarkers(map, markers);
-      //押したピンを中心に
-      addPanToMarker(map, markers);
-
+      
+    //メソッド呼び出し
+    //backendにlatlngを送るメソッド
+    sendCurrentPosition(latlng);
+    //map作成、中心地設定
+    const map = displayMap(latlng);
+    //位置情報をマーカーして、マーカーを変える。
+    const markers = addMarkers(map);
+    //募集情報受け取り
+    const storeInfo = workPlaceInfo();
+    //情報ウィンドウ
+    infoWindow(storeInfo,map,markers);
+    //近くの店舗を群で表示
+    clusterMarkers(map, markers);
+    //押したピンを中心に
+    addPanToMarker(map, markers);
+    
     }
-    ,
+    
     // 取得失敗した場合
-    function (error) {
+    function error(error) {
       switch(error.code) {
         case 1: //PERMISSION_DENIED
           alert("位置情報の利用が許可されていません");
@@ -86,16 +91,26 @@ function getPosition() {
         break;
       }
     }
-  ); 
+   
 }
 
 
 
 //----------メソッド------
 
+//backendにlatlngを送るメソッド
+function sendCurrentPosition(latlng) {
+  const currentPosition = latlng;
+  const post = new XMLHttpRequest();
+ 
+  post.open('POST','http://localhocst:8000/api/jobs/result');
+  post.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
+  post.send(currentPosition); 
+}
 
- //中心地の設定
- function displayMap(latlng) {
+
+//中心地の設定
+function displayMap(latlng) {
    //const center = latlng;
    const mapOptions = {
      center: latlng ,
@@ -103,10 +118,11 @@ function getPosition() {
    };
    const mapDiv = document.getElementById('map');
    return new google.maps.Map(mapDiv, mapOptions);
- }
+}
+
  
- //店舗位置情報から、マーカーを加えるメソッド
- function addMarkers(map) {
+//店舗位置情報から、マーカーを加えるメソッド
+function addMarkers(map) {
    const locations = {
      sevenNunohashi: { lat: 34.72211251025436, lng: 137.71739606148338 },
      sevenBunkyu: { lat: 34.72306492751079, lng: 137.7139628577003 },
@@ -124,13 +140,105 @@ function getPosition() {
      markers.push(marker);
    }
    return markers;
- }
+}
 
- //近いマーカーをまとめて番号で示す
- function clusterMarkers(map, markers) {
+/*
+//募集情報を受け取るメソッド(jsバージョン)
+function workPlaceInfo(){
+  
+  const div_node = document.createElement("div");
+  const storeName_node = document.createElement("h1");
+  const salary_node = document.createElement("p");
+  const url_node = document.createElement("p");
+  const a_node = document.createElement("a");
+
+  a_node.href = "https://www.shizuoka.ac.jp/";
+  
+  const title = document.createTextNode("セブン");
+  const salary = document.createTextNode("$900");
+  const url = document.createTextNode("募集サイトに行く");
+
+  a_node.appendChild(url);
+  storeName_node.appendChild(title);
+  salary_node.appendChild(salary);
+  url_node.appendChild(a_node);
+  div_node.appendChild(storeName_node,salary_node,url_node);//,salary,a_node);
+  return div_node;
+}
+*/
+
+//募集情報を受け取るメソッド(HTMLバージョン）
+function workPlaceInfo(){
+  const storeInfoArray = getStoreInfo();
+
+  const storeInfos =[];
+  for(const storeInfomations in storeInfoArray){
+    for(const storeInfomation in storeInfomations){
+      const storeInfo = 
+        '<div id="content">' +
+          '<div id="siteNotice">' +
+          "</div>" +
+          '<h1 id="firstHeading" class="firstHeading">' +
+            storeInfomation[0] +
+          '</h1>' +
+            '<div id="bodyContent">' +
+              '<p>職種:' + 
+                storeInfomation[1] +
+              '</p>' +
+              '<p>給料:' +
+                storeInfomation[2] + 
+              '</p>' +
+              '<p><a href=' +
+                storeInfomation[3] +
+                ">" +
+                "募集サイトに移動する</a>" +
+              '</p>' +
+            "</div>" +
+        "</div>";
+      storeInfos.push(storeInfo);
+    }
+  }
+  
+  return storeInfos;
+}
+/*
+function titleName(){
+  const finalName ="セブン";
+  finalName
+}
+*/
+
+//情報ウィンドウ
+function infoWindow(storeInfo, map, markers){
+  
+  //storeInfoには布橋と文丘のHTMLが入っている。
+  for(const info in storeInfo){
+    for(const marker in markers){
+      const iwopts = {
+        content: info,
+        //maxWidth: 250,
+        position: markers[marker]
+      };
+      const infoWindow = new google.maps.InfoWindow(iwopts);
+      markers[marker].addListener("click", ()=> {
+        infoWindow.open({
+          anchor: markers[marker],
+          map,
+          shouldFocus: false,
+        });
+      });
+    
+    }
+  }
+
+    
+}
+
+//近いマーカーをまとめて番号で示す
+function clusterMarkers(map, markers) {
    const clustererOptions = { imagePath: './img/m' }
    const markerCluster = new MarkerClusterer(map, markers, clustererOptions);
- }
+}
  
  //押したピンが中央に来るようにパンする
  function addPanToMarker(map, markers) {
@@ -142,12 +250,12 @@ function getPosition() {
       if (circle) {
         circle.setMap(null);
       }
-      circle = drawCircle(map, location);
+      //circle = drawCircle(map, location);
      });
    });
  }
 
-
+/*
  //押したピンの半径800メートルを示す
  function drawCircle(map, location) {
    const circleOptions = {
@@ -161,6 +269,7 @@ function getPosition() {
    const circle = new google.maps.Circle(circleOptions);
    return circle;
  }
+ */
 
 
  
