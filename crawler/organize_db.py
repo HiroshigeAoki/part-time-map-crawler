@@ -1,11 +1,13 @@
 import datetime
-from backend.config import get_config
 from pymongo import MongoClient
+
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class OrganizeDB:
     def __init__(self):
-        config=get_config()
-        client = MongoClient(config.db_path)
+        client = MongoClient(os.environ['DB_PATH'])
         self.collection = client['scraping-book']['item']
 
     def drop_expired(self):

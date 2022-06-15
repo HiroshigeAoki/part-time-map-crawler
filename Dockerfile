@@ -5,6 +5,8 @@ FROM python:3.9
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+RUN python -m venv venv
+RUN source venv/bin/activate
 RUN pip install --upgrade pip
 
 WORKDIR /code/

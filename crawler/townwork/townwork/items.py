@@ -20,3 +20,5 @@ class Company(scrapy.Item):
     working_hours = scrapy.Field()
     loc = scrapy.Field()
     fetched_date = scrapy.Field()
+    jc = scrapy.Field()
+    jmc = scrapy.Field()

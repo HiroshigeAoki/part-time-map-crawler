@@ -2,3 +2,5 @@
 #
 # Please refer to the documentation for information on how to create and manage
 # your spiders.
+import sys, os
+sys.path.append(os.getcwd().replace('/crawler/townwork', ''))
