@@ -104,6 +104,7 @@ class DetailSpider(CrawlSpider):
                     continue
                 item['loc'] = Point((float(a_tag['data-lon']), float(a_tag['data-lat'])))
 
-        item['statuses'] =  re.findall(r'\[.+?\]', item['job_title']) # 雇用形態
-
+        statDic = {"[Ａ]": "アルバイト", "[Ｐ]": "パート", "[契]": "契約社員", "[社]": "正社員", "[派]": "派遣", "[委]": "業務委託"}
+        item['statuses'] =  [statDic.get(stat) for stat in re.findall(r'\[.+?\]', item['job_title'])] # 雇用形態
+        
         yield item
