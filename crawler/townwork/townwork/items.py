@@ -6,7 +6,7 @@
 import scrapy
 
 
-class Company(scrapy.Item):
+class Job(scrapy.Item):
     name = scrapy.Field()
     name_u = scrapy.Field()
     url = scrapy.Field()
