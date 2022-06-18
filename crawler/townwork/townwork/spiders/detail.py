@@ -4,7 +4,7 @@ from scrapy.http import HtmlResponse
 from geojson import Point
 import json
 import re
-import datetime
+from datetime import datetime, timedelta, timezone
 from scrapy.shell import inspect_response
 from bs4 import BeautifulSoup
 
@@ -76,7 +76,9 @@ class DetailSpider(CrawlSpider):
         item['name'] = BeautifulSoup(response.css('.jsc-company-txt').get(), features='lxml').getText().strip().replace('\u3000', ' ')
         preferences = BeautifulSoup(response.css('.job-detail-merit-inner').get(), features='lxml').getText().strip().split('\n')
         item['preferences'] = [p.replace('\n', '') for p in preferences if '\n' != p or '……' != p or p != '……\n']
-        item['fetched_date'] = datetime.datetime.now()
+        
+        JST = timezone(timedelta(hours=+9), 'JST')
+        item['fetched_date'] = datetime.datetime.now(JST)
 
         dt_list = response.css('dt')
         for dt in dt_list:
@@ -86,7 +88,7 @@ class DetailSpider(CrawlSpider):
             elif dt_value == '掲載期間' and not 'deadline' in item.keys():
                 period = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').getText().strip()
                 if period is None: # TODO: デバックする。
-                    item['deadline'] = datetime.datetime.now()
+                    item['deadline'] = datetime.datetime.now(JST)
                     continue
                 item['deadline'] = datetime.datetime(*map(int, re.findall(r'～(\d+)年(\d+)月(\d+)日(\d+):(\d+)', period)[0]))
             elif dt_value == '会社住所' and not 'address' in item.keys():
