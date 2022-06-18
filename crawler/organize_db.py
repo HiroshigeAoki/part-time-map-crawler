@@ -12,7 +12,7 @@ class OrganizeDB:
 
     def drop_expired(self):
         JST = timezone(timedelta(hours=+9), 'JST')
-        now = datetime.datetime.now(JST)
+        now = datetime.now(JST)
         for doc in self.collection.find({'deadline': {'$lt': now}}):
             self.collection.delete_one({"_id": doc["_id"]})
     

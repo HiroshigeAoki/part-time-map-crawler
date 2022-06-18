@@ -23,8 +23,8 @@ class ValidationPipline: #TODO:後で書く。データの検証をする。最�
 
 class MongoPipeline:
     def open_spider(self, spider):
-        client = MongoClient(os.environ['DB_PATH'])
-        self.collection = client.db['item']
+        self.client = MongoClient(os.environ['DB_PATH'])
+        self.collection = self.client.db['item']
     
     def close_spider(self, spider):
         self.client.close()
