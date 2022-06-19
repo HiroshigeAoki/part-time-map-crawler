@@ -5,26 +5,33 @@
 
 
 # useful for handling different item types with a single interface
-from scrapy.exceptions import DropItem
 from pymongo import MongoClient
-
+from termcolor import colored
+import warnings
 import os
 from dotenv import load_dotenv
+from scrapy.exceptions import DropItem
 load_dotenv()
 
-class ValidationPipline: #TODO:後で書く。データの検証をする。最後の最後に重複を削除する。
+class ValidationPipline:
     def process_item(self, item, spider):
-        if not item['']:
-            raise DropItem('Missing title')
-        if item:
-            raise DropItem('Drop duplication')
+        mandatory_attr = ["name", "url", "deadline", "is_definite", "loc", "is_loc_accurate"]
+        arbitrary_attr = ["address", "wages", "type_of_job", "preferences", "es", "target", "working_hours", "work_period", "fetched_date", "jc", "jmc"]
+        for attr in mandatory_attr:
+            if attr not in item.keys():
+                raise DropItem(colored(f"Missing {attr}! {item['url']}", 'red'))
+        for attr in arbitrary_attr:
+            if attr not in item.keys():
+                warnings.warn(colored(f"Missing {attr}! {item['url']}", 'green'))
+
         return item
-        
+
 
 class MongoPipeline:
     def open_spider(self, spider):
         self.client = MongoClient(os.environ['DB_PATH'])
-        self.collection = self.client.db['item']
+        self.db = self.client["scraping-book"]
+        self.collection = self.db['item']
     
     def close_spider(self, spider):
         self.client.close()

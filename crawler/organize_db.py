@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
+from dateutil import tz
 from pymongo import MongoClient
 
 import os
@@ -11,7 +12,7 @@ class OrganizeDB:
         self.collection = client['scraping-book']['item']
 
     def drop_expired(self):
-        JST = timezone(timedelta(hours=+9), 'JST')
+        JST = tz.gettz('Asia/Tokyo')
         now = datetime.now(JST)
         for doc in self.collection.find({'deadline': {'$lt': now}}):
             self.collection.delete_one({"_id": doc["_id"]})

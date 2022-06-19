@@ -8,17 +8,29 @@ import scrapy
 
 class Job(scrapy.Item):
     name = scrapy.Field()
-    name_u = scrapy.Field()
     url = scrapy.Field()
     deadline = scrapy.Field()
+    is_definite = scrapy.Field()
     address = scrapy.Field()
     wages = scrapy.Field()
-    job_title = scrapy.Field()
+    type_of_job = scrapy.Field()
     preferences = scrapy.Field()
-    statuses = scrapy.Field()
+    es = scrapy.Field() # employment status
     target = scrapy.Field()
     working_hours = scrapy.Field()
+    work_period = scrapy.Field()
     loc = scrapy.Field()
+    is_loc_accurate = scrapy.Field() # the loc value may be inaccurate
     fetched_date = scrapy.Field()
     jc = scrapy.Field()
     jmc = scrapy.Field()
+
+class Area(scrapy.Item):
+    id = scrapy.Field()
+    url = scrapy.Field()
+    prefecture = scrapy.Field()
+    marea = scrapy.Field()
+    sarea = scrapy.Field()
+    ssarea = scrapy.Field()
+    station = scrapy.Field()
+    railway = scrapy.Field()

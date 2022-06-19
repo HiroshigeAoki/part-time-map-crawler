@@ -4,9 +4,12 @@ from scrapy.http import HtmlResponse
 from geojson import Point
 import json
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
+from dateutil import tz
 from scrapy.shell import inspect_response
 from bs4 import BeautifulSoup
+from normalize_japanese_addresses import normalize
+
 
 from townwork.items import Job
 from crawler.organize_db import OrganizeDB
@@ -16,6 +19,7 @@ class DetailSpider(CrawlSpider):
     allowed_domains = ['townwork.net']
     custom_settings = {
         'ITEM_PIPELINES': {
+            'townwork.pipelines.ValidationPipline': 200,
             'townwork.pipelines.MongoPipeline': 800,
         }
     }
@@ -77,36 +81,48 @@ class DetailSpider(CrawlSpider):
         preferences = BeautifulSoup(response.css('.job-detail-merit-inner').get(), features='lxml').getText().strip().split('\n')
         item['preferences'] = [p.replace('\n', '') for p in preferences if '\n' != p or '……' != p or p != '……\n']
         
-        JST = timezone(timedelta(hours=+9), 'JST')
-        item['fetched_date'] = datetime.now(JST)
+        JST = tz.gettz('Asia/Tokyo')
+        item['fetched_date'] = datetime.now(JST)#js-detailArea > div:nth-child(3) > div > div.job-age-txt.job-detail-remaining-date-age > p 
 
         dt_list = response.css('dt')
         for dt in dt_list:
             dt_value = dt.css('::text').get()
-            if dt_value == '職種' and not 'job_title' in item.keys():
-                item['job_title'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').getText().strip()
+            if dt_value == '職種' and not 'type_of_job' in item.keys():
+                item['type_of_job'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').getText().strip().replace('\u3000', ' ')
             elif dt_value == '掲載期間' and not 'deadline' in item.keys():
                 period = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').getText().strip()
-                if period is None: # TODO: デバックする。
-                    item['deadline'] = datetime.now(JST)
-                    continue
-                item['deadline'] = datetime(*map(int, re.findall(r'～(\d+)年(\d+)月(\d+)日(\d+):(\d+)', period)[0]))
+                item['deadline'] = datetime(*map(int, re.findall(r'～(\d+)年(\d+)月(\d+)日(\d+):(\d+)', period)[0]), tzinfo=JST)
+                item['is_definite'] = True
             elif dt_value == '会社住所' and not 'address' in item.keys():
                 item['address'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').getText().strip().replace('\u3000', ' ')
             elif dt_value == '給与' and not 'wages' in item.keys():
-                item['wages'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').getText().strip()
+                item['wages'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').getText().strip().replace('\u3000', ' ')
             elif dt_value == '対象となる方・資格' and not 'target' in item.keys():
-                item['target'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').getText().strip()
-            elif dt_value == '勤務期間' and not 'working_hours' in item.keys():
-                working_hours = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').getText().strip()
-                item['working_hours'] = working_hours.replace('……', ':').replace('\n\n\n', ', ').replace('\n', '')
-            elif dt_value == '勤務地' and not 'lat' in item.keys() and not 'lon' in item.keys():
+                item['target'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').getText().strip().replace('\u3000', ' ')
+            elif dt_value == '勤務時間' and not 'working_hours' in item.keys():
+                item['working_hours'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').getText().strip().replace('……', ':').replace('\n\n\n', ', ').replace('\n', '').replace('\u3000', ' ')
+            elif dt_value == '勤務期間' and not 'work_period' in item.keys():
+                item['work_period'] = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').getText().strip().replace('……', ':').replace('\n\n\n', ', ').replace('\n', '').replace('\u3000', ' ')
+            elif dt_value == '勤務地' and not 'loc' in item.keys():
                 a_tag = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').find('a')
                 if a_tag is None:
                     continue
-                item['loc'] = Point((float(a_tag['data-lon']), float(a_tag['data-lat'])))
+                item['loc'] = Point((float(a_tag['data-lat']), float(a_tag['data-lon'])))
+                item['is_loc_accurate'] = True
 
-        statDic = {"[Ａ]": "アルバイト", "[Ｐ]": "パート", "[契]": "契約社員", "[社]": "正社員", "[派]": "派遣", "[委]": "業務委託"}
-        item['statuses'] =  [statDic.get(stat) for stat in re.findall(r'\[.+?\]', item['job_title'])] # 雇用形態
+        if not 'deadline' in item.keys(): # 応募が決まり次第募集終了。
+            item['deadline'] = item['fetched_date']
+            item['is_definite'] = False
+                
+        if not 'loc' in item.keys():
+            nom = normalize(re.sub(r'^\d+-\d+', '', item['address'])) # delete zip code.
+            if nom.get('level') <= 2: # 緯度経度情報がなく、住所が不正確な場合はdrop
+                item['loc'] = None
+            elif nom.get('level') == 3: # 町丁目まで判別できたが、緯度経度情報がのもので不正確。
+                item['loc'] = Point((float(nom.get('lat')), float(nom.get('lng'))))
+                item['is_loc_accurate'] = False
+
+        esDic = {"[Ａ]": "アルバイト", "[Ｐ]": "パート", "[契]": "契約社員", "[社]": "正社員", "[派]": "派遣", "[委]": "業務委託"}
+        item['es'] =  [esDic.get(es) for es in re.findall(r'\[.+?\]', item['type_of_job'])] # 雇用形態 employment status
         
         yield item
