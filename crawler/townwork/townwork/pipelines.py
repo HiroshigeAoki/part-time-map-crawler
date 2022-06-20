@@ -26,7 +26,6 @@ class ValidationPipline:
 
         return item
 
-
 class MongoPipeline:
     def open_spider(self, spider):
         self.client = MongoClient(os.environ['DB_PATH'])
