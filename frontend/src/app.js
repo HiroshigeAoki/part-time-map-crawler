@@ -58,23 +58,25 @@ function getPosition() {
       alert("緯度:"+lat+",経度"+lng);
       const latlng = new google.maps.LatLng(lat, lng);
       
-    //メソッド呼び出し
-    //backendにlatlngを送るメソッド
-    sendCurrentPosition(latlng);
-    //jsonから応募情報を取得する
-    const jsonData = getStoreInfo2();
-    //map作成、中心地設定
-    const map = displayMap(latlng);
-    //位置情報をマーカーして、マーカーを変える。
-    const markers = addMarkers(map, jsonData);
-    //募集情報受け取り
-    const storeInfo = workPlaceInfo(jsonData);
-    //情報ウィンドウ
-    infoWindow(storeInfo,map,markers);
-    //近くの店舗を群で表示
-    clusterMarkers(map, markers);
-    //押したピンを中心に
-    addPanToMarker(map, markers);
+      //メソッド呼び出し
+      //backendにlatlngを送るメソッド
+      sendCurrentPosition(latlng);
+      //map作成、中心地設定
+      const map = displayMap(latlng);
+
+      //jsonから応募情報を取得する
+      //const jsonData = getStoreInfo();
+      getStoreInfo(map)
+      //位置情報をマーカーして、マーカーを変える。
+      //const markers = addMarkers(map, jsonData);
+      //募集情報受け取り
+      //const storeInfo = workPlaceInfo(jsonData);
+      //情報ウィンドウ
+      //infoWindow(storeInfo,map,markers);
+      //近くの店舗を群で表示
+      //clusterMarkers(map, markers);
+      //押したピンを中心に
+      //addPanToMarker(map, markers);
     
     }
     
@@ -101,125 +103,170 @@ function getPosition() {
    
 }
 
-
-
 //----------メソッド------
 
 //backendにlatlngを送るメソッド
 function sendCurrentPosition(latlng) {
+  const data = JSON.stringify({
+    "origins": {
+        "type": "Point",
+        "coordinates": [
+            138.4331,
+            34.9635
+    ]
+    },
+    "commute": {
+        "travelMode": "WALKING",
+        "time": "30分"
+    }
+});
+
+// JSONの取得
+let result = fetch("http://localhost:8000/api/jobs/search",
+    {
+        method: 'POST',
+        body: data,
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    }
+)
+ .then(res => {
+        if(res.ok){
+            return res.json()
+        }
+        else{
+            return Promise.reject(new Error('エラー、、'))
+        }
+    })
+ .then(json => console.log(json));
+  /*
   const currentPosition = latlng;
   const post = new XMLHttpRequest();
- 
-  post.open('POST','http://localhocst:8000/api/jobs/result');
+  post.open('POST','http://localhost:8000/api/jobs/search');
   //post.open('POST','http://localhost:8080/userData.json');
   post.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
   post.send(currentPosition); 
+  */
 }
 
+//中心地の設定
+function displayMap(latlng) {
+  //const center = latlng;
+  const mapOptions = {
+    center: latlng ,
+    zoom: 15
+  };
+  const mapDiv = document.getElementById('map');
+  return new google.maps.Map(mapDiv, mapOptions);
+}
 
 //店舗情報をjsonから読み込む
-function getStoreInfo2(){
-  
-  const nameArray = [];
-  const comentArray = [];
-  const salaryArray = [];
-  const urlArray = [];
-  const latArray = [];
-  const lngArray = [];
+function getStoreInfo(map){
+  var jsonDataArray1 =[];  
   //JSONファイルから募集情報を取得
   //const jsonData = require('./response_1653970587266.json'); 
   //function(){
 
+  
     fetch('./response_1653970587266.json') // (1) リクエスト送信
+    //fetch('http://localhost:8000/api/jobs/search') 
     .then(response => response.json()) // (2) レスポンスデータを取得
     .then(jsonDatas => { // (3)レスポンスデータを処理
-      const jsonData = jsonDatas;
+      let jsonData = jsonDatas;
       //const file_area = document.getElementById('file_area');
       //const ul_element = document.createElement('ul');
   
+      
+      //fetchを使ってJSONファイルから募集情報を取得
       /*
-      for(let i = 0; i<data.length; i++){
-        console.log("foo^^:",data[i].name);
-      }
+      fetch("http://localhost:8080/userData.json")
+      .then(response => {
+        return response.json();
+      })
+      .then(data => {
+        console.log(data);
+      })
+      .catch(error => {
+        console.log("失敗しました");
+      });
       */
 
-      //for(var d of data) {
+      const nameArray = [];
+      const comentArray = [];
+      const salaryArray = [];
+      const urlArray = [];
+      const latArray = [];
+      const lngArray = [];
+
+      console.log("やんね？",jsonData[0].name);//リヴォイス
+      console.log(jsonData.length);//20
+      const array =[jsonData[0].name ,jsonData[1].name];
+      console.log('arrayDETH',array);
+      for(let i = 0; i<jsonData.length; i++){
+        //店舗名取得
+        const name = jsonData[i].name;
+        nameArray.push(name);
         
-        //const li_element = document.createElement('li');
-        //li_element.textContent = d.title + " (リリース日：" + d.release_date + ")";
-  
-        //ul_element.appendChild(li_element);
-      //}
-  
-      //file_area.appendChild(ul_element);
-  
-  //});
-  
-  //fetchを使ってJSONファイルから募集情報を取得
-  /*
-  fetch("http://localhost:8080/userData.json")
-  .then(response => {
-    return response.json();
-  })
-  .then(data => {
-    console.log(data);
-  })
-  .catch(error => {
-    console.log("失敗しました");
-  });
-  */
+        //店舗からの一言
+        const coment = jsonData[i].job_title;
+        comentArray.push(coment);
 
-    console.log("やんね？",jsonData[0].name);//リヴォイス
-    console.log(jsonData.length);//20
-    for(let i = 0; i<jsonData.length; i++){
-      //店舗名取得
-      const name = jsonData[i].name;
-      nameArray.push(name);
+        //給料情報
+        const salary = jsonData[i].wages;
+        salaryArray.push(salary);
+
+        //募集記事サイトURL
+        const url = jsonData[i].url;
+        urlArray.push(url);
+
+        //店舗位置情報取得
+        const latlng = jsonData[i].loc.coordinates;
+        //緯度
+        const storeLat = latlng[1];
+        //経度
+        const storeLng = latlng[0];
+        console.log("latlng",storeLat,storeLng);
+        latArray.push(storeLat);
+        lngArray.push(storeLng);
+      }
+      //jsonDataArray1.push([nameArray, comentArray, salaryArray, urlArray, latArray, lngArray])
+      console.log(nameArray[0]);//理ヴォイス
+      console.log('return1',jsonDataArray1[0]);//名前全体の配列が表示される
       
-      //店舗からの一言
-      const coment = jsonData[i].job_title;
-      comentArray.push(coment);
+      //console.log("どうかなー",nameArray);
+      //console.log("どうかなーながさ",nameArray.length);
+      jsonDataArray1.push(nameArray);
+      jsonDataArray1.push(comentArray);
+      jsonDataArray1.push(salaryArray);
+      jsonDataArray1.push(urlArray);
+      jsonDataArray1.push(latArray);
+      jsonDataArray1.push(lngArray);
+      console.log('でるかな〜？',jsonDataArray1);
 
-      //給料情報
-      const salary = jsonData[i].wages;
-      salaryArray.push(salary);
+      //html要素の作成
+      const storeInfoHTML = workPlaceInfo(jsonDataArray1);
+      //位置情報をマーカーして、マーカーを変える。
+      const markers = addMarkers(map,jsonDataArray1);
+      //情報ウィンドウ
+      infoWindow(storeInfoHTML,map,markers);
+      //近くの店舗を群で表示
+      clusterMarkers(map, markers);
+      //押したピンを中心に
+      addPanToMarker(map, markers);
 
-      //募集記事サイトURL
-      const url = jsonData[i].url;
-      urlArray.push(url);
+    });
+    return jsonDataArray1;
 
-      //店舗位置情報取得
-      const latlng = jsonData[i].loc.coordinates;
-      //緯度
-      const storeLat = latlng[1];
-      //経度
-      const storeLng = latlng[0];
-      console.log("latlng",storeLat,storeLng);
-      latArray.push(storeLat);
-      lngArray.push(storeLng);
-    }
-  
-
-  
-  
-  });
-  console.log("どうかなー",nameArray);
-  console.log("どうかなーながさ",nameArray.length);
-  const jsonDataArray =[nameArray,comentArray,salaryArray,urlArray,latArray,lngArray];
-  return jsonDataArray;
+  //const jsonDataArray2 = [];
+  //jsonDataArray2.push(jsonDataArray1);
+  //console.log('return2',jsonDataArray1);
+  //return jsonDataArray1;
 }
 
 
-//中心地の設定
-function displayMap(latlng) {
-   //const center = latlng;
-   const mapOptions = {
-     center: latlng ,
-     zoom: 15
-   };
-   const mapDiv = document.getElementById('map');
-   return new google.maps.Map(mapDiv, mapOptions);
-}
+
 
  
 //店舗位置情報から、マーカーを加えるメソッド
@@ -236,7 +283,9 @@ function addMarkers(map, jsonData) {
   */
 
   
-  console.log("長さの確認です",jsonData[4].length);
+  console.log("全体の確認です",jsonData);
+  console.log("長さの確認です",jsonData[0]);
+  console.log("緯度の確認です",jsonData[0][4]);
 
   const latlngs =[];
   for(let i =0; i <jsonData[4].length; i++){
