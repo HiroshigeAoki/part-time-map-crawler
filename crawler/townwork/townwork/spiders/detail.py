@@ -107,7 +107,7 @@ class DetailSpider(CrawlSpider):
                 a_tag = BeautifulSoup(dt.xpath('./following-sibling::dd').get(), features='lxml').find('a')
                 if a_tag is None:
                     continue
-                item['loc'] = Point((float(a_tag['data-lat']), float(a_tag['data-lon'])))
+                item['loc'] = Point((float(a_tag['data-lon']), float(a_tag['data-lat'])))
                 item['is_loc_accurate'] = True
 
         if not 'deadline' in item.keys(): # 応募が決まり次第募集終了。
@@ -119,7 +119,7 @@ class DetailSpider(CrawlSpider):
             if nom.get('level') <= 2: # 緯度経度情報がなく、住所が不正確な場合はdrop
                 item['loc'] = None
             elif nom.get('level') == 3: # 町丁目まで判別できたが、緯度経度情報がのもので不正確。
-                item['loc'] = Point((float(nom.get('lat')), float(nom.get('lng'))))
+                item['loc'] = Point((float(nom.get('lng')), float(nom.get('lat'))))
                 item['is_loc_accurate'] = False
 
         esDic = {"[Ａ]": "アルバイト", "[Ｐ]": "パート", "[契]": "契約社員", "[社]": "正社員", "[派]": "派遣", "[委]": "業務委託"}
