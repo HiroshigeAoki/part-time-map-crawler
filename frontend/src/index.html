@@ -16,33 +16,103 @@
       <button id="mansion-poem-submit" class="submit">更新</button>
     </div>-->
       <div class="app">
-        <p class="label">希望通勤手段を選択してください</p>
-          <input id="commuting_method" type="checkbox" name="commuting_time" value="101">徒歩
-          <input id="commuting_method" type="checkbox" name="commuting_time" value="102">自転車
-          <input id="commuting_method" type="checkbox" name="commuting_time" value="103">バス
-          <input id="commuting_method" type="checkbox" name="commuting_time" value="104">車・バイク
-
-        <p class="label">希望通勤時間を選択してください</p>  
-          <input type="range" id="commuting_time" name="volume" min="0" max="11">
+        <label for="commuting_method" class="label">希望通勤手段を選択してください</label>
+        <select id="commuting_method" name="commuting_method">
+          <option value="徒歩" checked>徒歩</option>
+          <option value="自転車">自転車</option>
+          <option value="バス">バス</option>
+          <option value="車・バイク">車・バイク</option>
+        </select>
           
-        <p class="label">希望勤務時間を選択してください</p>  
-          <input type="range" id="work_time" name="volume" min="0" max="11">
+        <label for="commuting_time" class="label">希望通勤時間を選択してください</label>  
+          <p><span class="badge badge-warning1">希望通勤時間</span></p>
+          <input type="range" id="commuting_time" name="commuting_time" min="0" max="11" value="5">
+          
+          
+        <label for="work_time" class="label">希望勤務時間を選択してください</label>
+          <p><span class="badge badge-warning2">希望勤務時間</span></p>  
+          <input type="range" id="work_time" name="work_time" min="0" max="11" value="5">
+        <!--
+        <label for="profession" class="label">職種を選択してください</label>
+          <select id="profession" name="profession">
+          <option value="0" aria-checked="true">すべて</option>
+          <option value="1">飲食/フード</option>
+          <option value="2">販売接客/サービス</option>
+          <option value="3">接客/サービス</option>
+          <option value="4">レジャー/エンタメ</option>
+          <option value="5">営業</option>
+          <option value="6">事務</option>
+          <option value="7">総務/企画</option>
+          <option value="8">教育</option>
+          <option value="9">物流/配送</option>
+          <option value="10">軽作業</option>
+          <option value="11">建築/土木/建設</option>
+          <option value="12">工場/製造</option>
+          <option value="13">IT/コンピュータ</option>
+          <option value="14">医療/介護/福祉</option>
+          <option value="15">マスコミ/出版</option>
+          <option value="16">芸能</option>
+          <option value="17">ガールズバー/キャバクラ/パブ/クラブ</option>
+          <option value="18">専門職/その他</option>
+          </select>
+          -->
+          
+            <p class="label">こだわりを選択してください</p><!--チェックボックス-->
+              <label for="occupation1"><input id="occupation1" type="checkbox" name="occupation" value="すべて" checked>すべて</label>
+              <label for="occupation2"><input id="occupation2" type="checkbox" name="occupation" value="飲食/フード">飲食/フード</label>
+              <label for="occupation3"><input id="occupation3" type="checkbox" name="occupation" value="販売接客/サービス">販売接客/サービス</label>
+              <label for="occupation4"><input id="occupation4" type="checkbox" name="occupation" value="レジャー/エンタメ">レジャー/エンタメ</label>
+              <label for="occupation5"><input id="occupation5" type="checkbox" name="occupation" value="営業">営業</label>
+              <label for="occupation6"><input id="occupation6" type="checkbox" name="occupation" value="事務">事務</label>
+              <label for="occupation7"><input id="occupation7" type="checkbox" name="occupation" value="総務/企画">総務/企画</label>
+              <label for="occupation8"><input id="occupation8" type="checkbox" name="occupation" value="教育">教育</label>
+              <label for="occupation9"><input id="occupation9" type="checkbox" name="occupation" value="物流/配送">物流/配送</label>
+              <label for="occupation10"><input id="occupation10" type="checkbox" name="occupation" value="軽作業">軽作業</label>
+              <label for="occupation11"><input id="occupation11" type="checkbox" name="occupation" value="建築/土木/建設">建築/土木/建設</label>
+              <label for="occupation12"><input id="occupation12" type="checkbox" name="occupation" value="工場/製造">工場/製造</label>
+              <label for="occupation13"><input id="occupation13" type="checkbox" name="occupation" value="IT/コンピュータ">IT/コンピュータ</label>
+              <label for="occupation14"><input id="occupation14" type="checkbox" name="occupation" value="医療/介護/福祉">医療/介護/福祉</label>
+              <label for="occupation15"><input id="occupation15" type="checkbox" name="occupation" value="マスコミ/出版">マスコミ/出版</label>
+              <label for="occupation16"><input id="occupation16" type="checkbox" name="occupation" value="芸能">芸能</label>
+              <label for="occupation17"><input id="occupation17" type="checkbox" name="occupation" value="ガールズバー/キャバクラ/パブ/クラブ">ガールズバー/キャバクラ/パブ/クラブ</label>
+              <label for="occupation18"><input id="occupation18" type="checkbox" name="occupation" value="専門職/その他">専門職/その他</label>
+          
+        
+          
 
-        <!--<textarea id="mansion-poem-textinput" class="text" rows="5"></textarea>-->
-        <p class="label">職種を選択してください</p>
-          <input id="profession" type="checkbox" name="profession" value="102">飲食店
-          <input id="profession" type="checkbox" name="profession" value="102">塾講師
-          <input id="profession" type="checkbox" name="profession" value="102">デスクワーク
         <!--<textarea id="mansion-poem-nameinput" class="text" rows="5"></textarea>-->
-        <p class="label">こだわりを選択してください</p><!--チェックボックス-->
-          <input id="favorite" type="checkbox" name="favorite" value="103">髪色自由
-          <input id="favorite" type="checkbox" name="favorite" value="103">面接無し
-          <input id="favorite" type="checkbox" name="favorite" value="103">履歴書なし
+        
+        <div class="favorite">
+          <p class="label">こだわりを選択してください</p><!--チェックボックス-->
+            <label for="favorite1"><input id="favorite1" type="checkbox" name="favorite" value="高収入" checked>高収入</label>
+            <label for="favorite2"><input id="favorite2" type="checkbox" name="favorite" value="未経験OK">未経験OK</label>
+            <label for="favorite3"><input id="favorite3" type="checkbox" name="favorite" value="経験者歓迎">経験者歓迎</label>
+            <label for="favorite4"><input id="favorite4" type="checkbox" name="favorite" value="長期歓迎">長期歓迎</label>
+            <label for="favorite5"><input id="favorite5" type="checkbox" name="favorite" value="交通費支給">交通費支給</label>
+            <label for="favorite6"><input id="favorite6" type="checkbox" name="favorite" value="バイク通勤">バイク通勤</label>
+            <label for="favorite7"><input id="favorite7" type="checkbox" name="favorite" value="車通勤">車通勤</label>
+            <label for="favorite8"><input id="favorite8" type="checkbox" name="favorite" value="土日祝のみOK">土日祝のみOK</label>
+            <label for="favorite9"><input id="favorite9" type="checkbox" name="favorite" value="日払い">日払い</label>
+            <label for="favorite10"><input id="favorite10" type="checkbox" name="favorite" value="単発OK">単発OK</label>
+            <label for="favorite11"><input id="favorite11" type="checkbox" name="favorite" value="週1 OK">週1 OK</label>
+            <label for="favorite12"><input id="favorite12" type="checkbox" name="favorite" value="週2～3">週2～3</label>
+            <label for="favorite13"><input id="favorite13" type="checkbox" name="favorite" value="週4～">週4～</label>
+            <label for="favorite14"><input id="favorite14" type="checkbox" name="favorite" value="夕方から">夕方から</label>
+            <label for="favorite15"><input id="favorite15" type="checkbox" name="favorite" value="制服">制服</label>
+            <label for="favorite16"><input id="favorite16" type="checkbox" name="favorite" value="髪型自由">髪型自由</label>
+            <label for="favorite17"><input id="favorite17" type="checkbox" name="favorite" value="履歴書不要">履歴書不要</label>
+        </div>
+        
         <!--<textarea id="mansion-poem-copyinput" class="text" rows="5"></textarea>-->
         <button id="mybtn" value="searchButton" class="submit">検索</button>
       </div>
+      <script>
+        
 
-      <script  type="text/javascript" src="popup.js"></script>
+      </script>
+      <script src="popup.mjs"></script>
+      <script>let element = document.getElementById('commuting_method');
+        console.log("yeah",element.value);</script>
   
     <!--
     This HTML file opens when you click on icon from the toolbar.
