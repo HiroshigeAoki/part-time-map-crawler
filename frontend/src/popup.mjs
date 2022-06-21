@@ -5,6 +5,38 @@
 //import "fetch-polyfill";
 
 (function() {
+  //ボタンIDを取得して、クリックされたらmap.htmlを開く
+  let searchButton = document.getElementById('mybtn');
+    searchButton.addEventListener('click', () => {
+      // const query = get_query(); 
+      let query = JSON.stringify({ //TODO:クエリーを↑のユーザが選択したものに置き換える。
+        "origins": {
+            "type": "Point",
+            "coordinates": [
+                138.4331,
+                34.9635
+        ]
+        },
+        "commute": {
+            "travelMode": "WALKING",
+            "time": '30分'
+        },
+        "jc":[],
+        "jmc": [],
+        "preferences": []
+      });
+
+      res = search(query);
+
+      console.log(res);
+      
+      open('map.html');
+    });
+
+})();
+
+function get_query(){
+  //origins = //ユーザの現在地
   //ユーザの希望条件を取得
   //通勤方法
   const commutingMethod = document.getElementById("commuting_method");
@@ -48,106 +80,41 @@
         favorite.push(favo.value);
       }
     }
-  
-  
-  
-    //  
-  let userData2 = {
-    commutingMethod: commutingMethod,
-    commutingTime: commutingTime,
-    workTime: workTime,
-    occupation: occupations,
-    favorite: favorite,
-  };
-
-  let userData ={
-    name: 'sugiyama',  
-  };
-  
-
-  /*
-  
-*/
-
-/*
-let length;
-if(occupation.length<favorite.length){
-  length = favorite.length;
-}else{
-  length = occupation.length;
+  //Search クエリードキュメント: http://localhost:8000/redoc#operation/search_api_jobs_search_post
+  let query = JSON.stringify({
+    //"origins": origins,
+    "commute": {
+      "travelMode": commutingMethod,
+      "time": commutingTime
+    },
+    //workTime: workTime,
+    "jc": occupations,
+    "jmc": [],
+    "preferences": favorite,
+  });
+  return query
 }
-//for(let i=0; i<length; i++){
-  let blob1 = new Blob([commutingMethod.value],{type:"text/plan"});
-  let blob2 = new Blob([commutingTime.value],{type:"text/plan"});
-  let blob3 = new Blob([workTime.value],{type:"text/plan"});
-  let link = document.createElement('a');
-  link.href = URL.createObjectURL(blob1);
-  link.href = URL.createObjectURL(blob2);
-  link.href = URL.createObjectURL(blob3);
-  link.download = 'userData.json';
-  
-//}
-link.click();
-*/
- 
-  //ボタンIDを取得して、クリックされたらmap.htmlを開く
-  let searchButton = document.getElementById('mybtn');
-    searchButton.addEventListener('click', () => {
 
-      
-
-      //const fetch = require('node-fetch');
-      //-------------------------------------
-      fetch('http://localhocst:8000/api/jobs/search', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: "piroshige aoki",
-          gender: 1,
-          age: 99,
-          address: 'ほげふが住所',
-          tel: '09011112222',
-          })
-      });
-      //-------------------------------------
-
-      /*
-    //postData(userData);
-    //function postData(userData){
-      //fetch('http://localhocst:8080/userData.json', {
-      fetch('http://localhocst:8000/api/jobs/search', {
-        method: 'POST', // or 'PUT'
-        headers: {
+function search(query){
+  // JSONの取得
+  fetch("http://localhost:8000/api/jobs/search",
+  {
+      method: 'POST',
+      body: query,
+      headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      })
-      .then(response => response.json())
-      .then(userData => {
-        console.log('Success:', userData);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-    //}
-    */
-
-
-      /*
-      const post = new XMLHttpRequest();
-      post.open('POST','http://localhocst:8080/app.js');
-      //post.open('POST','http://localhost:8080/userData.json');
-      post.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
-      post.send(currentPosition); 
-      */
-      open('map.html');
-    });
-
-
-    //const data = { username: 'example' };
-
-    
-     
-})();
+          'Access-Control-Allow-Origin': ['http://localhost:8000/', 'http://localhost:8080/'] 
+      }
+  }
+  )
+  .then(res => {
+      if(res.ok){
+          return res.json()
+      }
+      else{
+          return Promise.reject(new Error('エラー、、'))
+      }
+  })
+  .then(json => console.log(json));
+}
