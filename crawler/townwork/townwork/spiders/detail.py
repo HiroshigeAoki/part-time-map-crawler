@@ -122,7 +122,7 @@ class DetailSpider(CrawlSpider):
                 item['loc'] = Point((float(nom.get('lng')), float(nom.get('lat'))))
                 item['is_loc_accurate'] = False
 
-        esDic = {"[Ａ]": "アルバイト", "[Ｐ]": "パート", "[契]": "契約社員", "[社]": "正社員", "[派]": "派遣", "[委]": "業務委託"}
+        esDic = {"[Ａ]": "アルバイト", "[Ｐ]": "パート", "[契]": "契約社員", "[社]": "正社員", "[派]": "派遣", "[委]": "業務委託", "[紹]": "職業紹介/紹介予定派遣"}
         item['es'] =  [esDic.get(es) for es in re.findall(r'\[.+?\]', item['type_of_job'])] # 雇用形態 employment status
         
         yield item
