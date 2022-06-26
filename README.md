@@ -5,7 +5,7 @@
 # Docker(Backend)
 
 ```
-cat example.env > .env
+cat example.env > backend/.env
 docker compose -f "docker-compose.yml" up -d --build
 ```
 検証ページ
