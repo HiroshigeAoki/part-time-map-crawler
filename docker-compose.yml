@@ -1,18 +1,49 @@
 version: "3"
 
 services:
-  web:
-    build: .
-    command: bash -c "uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload"
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
     volumes:
-      - .:/code
+      - ./frontend:/code/frontend
+    ports:
+      - "3000:3000"
+    expose:
+      - 3000
+
+  #frontend2:
+  #  container_name: vue
+  #  build:
+  #    context: frontend2
+  #    dockerfile: Dockerfile
+  #  tty: true
+  #  restart: always
+  #  ports:
+  #    - "8080:8080"
+  #  expose:
+  #    - 8080
+  #  volumes:
+  #    - ./frontend2:/code/frontend2
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: bash -c "uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload"
+    volumes:
+      - ./backend:/code/backend
+    expose:
+      - 8000
     ports:
       - 8000:8000
     depends_on:
       - mongo
+
   mongo:
     image: mongo
-
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo_user

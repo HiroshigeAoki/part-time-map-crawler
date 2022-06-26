@@ -1,5 +1,6 @@
 from scrapy.spiders import SitemapSpider
 import re
+from townwork.items import Area
 
 # 範囲を広げる時に使いたいURLを取得するために使う。
 class URLSpider(SitemapSpider):
@@ -26,7 +27,10 @@ class URLSpider(SitemapSpider):
 
 
     def parse_area(self, response):
+        item = Area()
         if 'short' not in response.url and 'emc_02' not in response.url: #短期と派遣を削除
-            yield{
-                re.match(r'https://townwork.net/.+/(.+)/$', response.url)[1]: response.url
-            }
+            item['url'] = response.url
+            item['prefecture'] = re.match(r'https://townwork.net/(\w+)/.+$', item['url'])[0]
+            
+            
+            

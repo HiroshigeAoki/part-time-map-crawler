@@ -24,7 +24,9 @@ const CONFIG = {
     app: './src/app.js'
   },
   devServer: {
-    contentBase: path.join(__dirname, 'src')
+    host: '0.0.0.0',
+    port: 3000,
+    contentBase: path.join(__dirname, 'src'),
   }
 };
 

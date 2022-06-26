@@ -5,16 +5,19 @@ FROM python:3.9
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR /code/
+ENV LANG C.UTF-8
+ENV TZ Asia/Tokyo
+
+WORKDIR /code/backend
 
 # Setup python venv
 RUN python -m venv venv
-RUN . /code/venv/bin/activate
+RUN . /code/backend/venv/bin/activate
 RUN pip install --upgrade pip
 
 # Install dependencies
-COPY requirements.txt /code/
+COPY requirements.txt .
 RUN  pip install -r requirements.txt
-COPY . /code/
+COPY . .
 
 EXPOSE 8000
