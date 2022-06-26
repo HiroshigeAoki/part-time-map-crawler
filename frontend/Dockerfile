@@ -10,5 +10,4 @@ RUN npm install
 COPY . .
 
 EXPOSE 3000
-ENV NODE_OPTIONS="--openssl-legacy-provider" 
 CMD [ "npm", "start" ]
