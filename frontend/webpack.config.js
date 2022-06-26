@@ -26,7 +26,9 @@ const CONFIG = {
   devServer: {
     host: '0.0.0.0',
     port: 3000,
-    contentBase: path.join(__dirname, 'src'),
+    static:{
+      directory: path.join(__dirname, 'src'),
+    }
   }
 };
 
