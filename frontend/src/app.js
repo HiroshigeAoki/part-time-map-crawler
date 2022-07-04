@@ -292,7 +292,7 @@ function getStoreInfo(map){
   var jsonDataArray1 =[];  
   //JSONファイルから募集情報を取得
   //const jsonData = require('./response_1653970587266.json'); 
-  //function(){
+  //function(){ß
 
   
     fetch('./response_1653970587266.json') // (1) リクエスト送信
