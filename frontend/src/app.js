@@ -270,7 +270,8 @@ function sendUserData(query){
           return res.json()
       }
       else{
-          return Promise.reject(new Error('エラー、、'))
+          return res.text().then(err=>
+            Promise.reject(new Error(err)))
       }
   })
   .then(json => console.log(json));
@@ -295,8 +296,8 @@ function getStoreInfo(map){
   //function(){ß
 
   
-    fetch('./response_1653970587266.json') // (1) リクエスト送信
-    //fetch('http://localhost:8000/api/jobs/search') 
+    //fetch('./response_1653970587266.json') // (1) リクエスト送信
+    fetch('http://localhost:8000/api/jobs/search') 
     .then(response => response.json()) // (2) レスポンスデータを取得
     .then(jsonDatas => { // (3)レスポンスデータを処理
       let jsonData = jsonDatas;
