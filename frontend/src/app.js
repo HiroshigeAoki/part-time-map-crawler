@@ -17,6 +17,9 @@
  //モジュールインポート
  import { Loader } from '@googlemaps/js-api-loader';
  import MarkerClusterer from '@google/markerclustererplus';
+ //import foo from './popup.mjs';
+
+ //console.log(foo.FA);
 
 //
 
@@ -55,12 +58,88 @@ function getPosition() {
     function success(position) {
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
-      alert("緯度:"+lat+",経度"+lng);
+      alert("緯度:"+lat+",経度"+lng);//サイトが開いたときにポップアップで緯度経度を出す。
       const latlng = new google.maps.LatLng(lat, lng);
+      console.log("latlngの表示:",lat,lng);
       
       //メソッド呼び出し
       //backendにlatlngを送るメソッド
-      sendCurrentPosition(latlng);
+      //sendCurrentPosition(latlng);
+
+      //ユーザー希望条件を取得して、ネストでbackendに送信する。
+      const query = getUserData(latlng);
+      console.log("クエリまつりパート２：",query);//OK
+      //ユーザー希望条件をbackendに送信するメソッド
+      sendUserData(query);
+
+
+//---
+
+
+/*
+let query = JSON.stringify({ //TODO:クエリーを↑のユーザが選択したものに置き換える。
+  "origins": {
+      "type": "Point",
+      "coordinates": [
+          138.4331,
+          34.9635
+  ]
+  },
+  "commute": {
+      "travelMode": "WALKING",
+      "time": '30分'
+  },
+  "jc":[],
+  "jmc": [],
+  "preferences": []
+});
+*/
+
+/*
+//backendにlatlngを送るメソッド
+function sendCurrentPosition(latlng) {
+  const data = JSON.stringify({
+    "origins": {
+        "type": "Point",
+        "coordinates": [
+            138.4331,
+            34.9635
+    ]
+    },
+    "commute": {
+      "travelMode": "WALKING",
+      "time": "30分"
+    }
+  });
+  */
+
+  /*
+// JSONの取得
+let result = fetch("http://localhost:8000/api/jobs/search",
+    {
+        method: 'POST',
+        body: data,
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    }
+)
+ .then(res => {
+        if(res.ok){
+            return res.json()
+        }
+        else{
+            return Promise.reject(new Error('エラー、、'))
+        }
+    })
+    
+ .then(json => console.log(json));
+ 
+
+}
+*/
+
       //map作成、中心地設定
       const map = displayMap(latlng);
 
@@ -80,7 +159,7 @@ function getPosition() {
     
     }
     
-    // 取得失敗した場合
+    // 位置情報取得に失敗した場合
     function error(error) {
       switch(error.code) {
         case 1: //PERMISSION_DENIED
@@ -103,52 +182,98 @@ function getPosition() {
    
 }
 
+
 //----------メソッド------
-
-//backendにlatlngを送るメソッド
-function sendCurrentPosition(latlng) {
-  const data = JSON.stringify({
-    "origins": {
-        "type": "Point",
-        "coordinates": [
-            138.4331,
-            34.9635
-    ]
-    },
-    "commute": {
-        "travelMode": "WALKING",
-        "time": "30分"
-    }
-});
-
-// JSONの取得
-let result = fetch("http://localhost:8000/api/jobs/search",
-    {
-        method: 'POST',
-        body: data,
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    }
-)
- .then(res => {
-        if(res.ok){
-            return res.json()
-        }
-        else{
-            return Promise.reject(new Error('エラー、、'))
-        }
-    })
- .then(json => console.log(json));
+//commutingなどをpopup.jsから受け取るメソッド
+function getUserData(latlng){
+  //popup.jsから受け取る内容を書こう------------------------------------------------------------------------------------------------------
   /*
-  const currentPosition = latlng;
-  const post = new XMLHttpRequest();
-  post.open('POST','http://localhost:8000/api/jobs/search');
-  //post.open('POST','http://localhost:8080/userData.json');
-  post.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
-  post.send(currentPosition); 
-  */
+    //通勤方法
+    const commutingMethod = document.getElementById("commuting_method");
+    console.log("^^",commutingMethod.value);
+    //通勤時間
+    const commutingTime = document.getElementById("commuting_time");
+    console.log("jikan",commutingTime.value);
+    //勤務時間
+    const workTime = document.getElementById("work_time");
+    console.log("jikann2",workTime.value);
+    //バーの値を出すメソッド
+    window.onload = function () {
+      const commuTime = document.getElementById("commuting_time");
+      const workTime = document.getElementById("work_time");
+      // 選択した際のイベント取得
+      commuTime.addEventListener('change', (e) => {
+        document.getElementsByClassName('badge-warning1')[0].textContent = commuTime.value;
+      });
+      workTime.addEventListener('change', (e) => {
+        document.getElementsByClassName('badge-warning2')[0].textContent = workTime.value;
+      });
+  
+    }
+    //職種
+    const occupations = [];
+    const occupation = document.getElementsByName("occupation");
+    for(const occu of occupation){
+      if(occu.checked === true){
+        //console.log(favo.checked); 
+        console.log(occu.value)
+        occupations.push(occu.value);
+      }
+    }
+    //こだわり
+    const favorite=[];
+    const favos = document.getElementsByName("favorite");
+      for(const favo of favos){
+        if(favo.checked === true){
+          //console.log(favo.checked); 
+          console.log(favo.value)
+          favorite.push(favo.value);
+        }
+      }
+*/
+
+  const commutingMethod = "徒歩";
+  const commutingTime = 5;
+  const occupations = ["飲食/フード","営業"];
+  const favorite = ["高収入","未経験OK"];
+  //Search クエリードキュメント: http://localhost:8000/redoc#operation/search_api_jobs_search_post
+  let query = JSON.stringify({
+    "origins": latlng,
+    "commute": {
+      "travelMode": commutingMethod,
+      "time": commutingTime
+    },
+    //workTime: workTime,
+    "jc": occupations,
+    "jmc": [],
+    "es": [],
+    "preferences": favorite,
+  });
+  console.log("クエリまつりじゃぁ！：",query);//OK
+  return query;
+}
+
+//クエリ情報をバックエンドに送るメソッド
+function sendUserData(query){
+  // JSONの取得
+  fetch("http://localhost:8000/api/jobs/search",{
+      method: 'POST',
+      body: query,
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': ['http://localhost:8000/', 'http://localhost:8080/'] 
+      }
+  })
+  .then(res => {
+      if(res.ok){
+          return res.json()
+      }
+      else{
+          return Promise.reject(new Error('エラー、、'))
+      }
+  })
+  .then(json => console.log(json));
 }
 
 //中心地の設定
@@ -162,7 +287,7 @@ function displayMap(latlng) {
   return new google.maps.Map(mapDiv, mapOptions);
 }
 
-//店舗情報をjsonから読み込む
+//希望条件に会った店舗情報をjsonから読み込む
 function getStoreInfo(map){
   var jsonDataArray1 =[];  
   //JSONファイルから募集情報を取得
@@ -392,7 +517,7 @@ function workPlaceInfo(jsonData){
             jsonData[0][j] +
           '</h1>' +
             '<div id="bodyContent">' +
-              '<p><ひとこと> ' + 
+              '<p><コメント> ' + 
               jsonData[1][j] +
               '</p>' +
               '<p><給料> ' +
@@ -529,6 +654,9 @@ function clusterMarkers(map, markers) {
      });
    });
  }
+
+
+
 
 /*
  //押したピンの半径800メートルを示す

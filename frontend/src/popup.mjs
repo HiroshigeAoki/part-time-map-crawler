@@ -1,42 +1,17 @@
-"use stricts";
+//"use stricts";
 //import "popup.css";
 //import fetch from 'node-fetch';
 //import "es6-promise/auto";
 //import "fetch-polyfill";
 
+ //モジュールインポート
+ //import { Loader } from '@googlemaps/js-api-loader';
+//import MarkerClusterer from '@google/markerclustererplus';
+
 (function() {
   //ボタンIDを取得して、クリックされたらmap.htmlを開く
   let searchButton = document.getElementById('mybtn');
     searchButton.addEventListener('click', () => {
-      // const query = get_query(); 
-      let query = JSON.stringify({ //TODO:クエリーを↑のユーザが選択したものに置き換える。
-        "origins": {
-            "type": "Point",
-            "coordinates": [
-                138.4331,
-                34.9635
-        ]
-        },
-        "commute": {
-            "travelMode": "WALKING",
-            "time": '30分'
-        },
-        "jc":[],
-        "jmc": [],
-        "preferences": []
-      });
-
-      res = search(query);
-
-      console.log(res);
-      
-      open('map.html');
-    });
-
-})();
-
-function get_query(){
-  //origins = //ユーザの現在地
   //ユーザの希望条件を取得
   //通勤方法
   const commutingMethod = document.getElementById("commuting_method");
@@ -80,41 +55,8 @@ function get_query(){
         favorite.push(favo.value);
       }
     }
-  //Search クエリードキュメント: http://localhost:8000/redoc#operation/search_api_jobs_search_post
-  let query = JSON.stringify({
-    //"origins": origins,
-    "commute": {
-      "travelMode": commutingMethod,
-      "time": commutingTime
-    },
-    //workTime: workTime,
-    "jc": occupations,
-    "jmc": [],
-    "preferences": favorite,
-  });
-  return query
-}
 
-function search(query){
-  // JSONの取得
-  fetch("http://localhost:8000/api/jobs/search",
-  {
-      method: 'POST',
-      body: query,
-      headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': ['http://localhost:8000/', 'http://localhost:8080/'] 
-      }
-  }
-  )
-  .then(res => {
-      if(res.ok){
-          return res.json()
-      }
-      else{
-          return Promise.reject(new Error('エラー、、'))
-      }
-  })
-  .then(json => console.log(json));
-}
+  open('map.html');
+    });
+
+})();
