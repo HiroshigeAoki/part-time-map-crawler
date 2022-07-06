@@ -17,13 +17,36 @@
  //モジュールインポート
  import { Loader } from '@googlemaps/js-api-loader';
  import MarkerClusterer from '@google/markerclustererplus';
- //import foo from './popup.mjs';
+ 
+ //複数クエリを受け取っている
+ let paramsString = window.location.search;
+ let searchParams = new URLSearchParams(paramsString);
+ const commuMethod = searchParams.getAll("commuting_method")
+ const commuTime = searchParams.getAll("commuting_time")
+ const occupations = searchParams.getAll("occupation")
+ const favorite = searchParams.getAll("favorite")
+ console.log(commuMethod,commuTime,occupations,favorite);//[walking]
 
- //console.log(foo.FA);
-
-//
-
-
+ /*クエリ受け取り
+ console.log("やすさん",window.location.search);
+ const queryURL = getUrlQueries();
+ console.log("やすさん２：",queryURL);
+ function getUrlQueries() {
+  var queryStr = window.location.search.slice(1);  // 文頭?を除外
+      const queries = {};
+  // クエリがない場合は空のオブジェクトを返す
+  if (!queryStr) {
+    return queries;
+  }
+  // クエリ文字列を & で分割して処理
+  queryStr.split('&').forEach(function(queryStr) {
+    // = で分割してkey,valueをオブジェクトに格納
+    var queryArr = queryStr.split('=');
+    queries[queryArr[0]] = queryArr[1];
+  });
+  return queries;
+ }
+*/
 
  
  //APIキー取得
@@ -232,16 +255,13 @@ function getUserData(latlng){
       }
 */
 
-  const commutingMethod = "徒歩";
-  const commutingTime = 5;
-  const occupations = ["飲食/フード","営業"];
-  const favorite = ["高収入","未経験OK"];
+
   //Search クエリードキュメント: http://localhost:8000/redoc#operation/search_api_jobs_search_post
   let query = JSON.stringify({
     "origins": latlng,
     "commute": {
-      "travelMode": commutingMethod,
-      "time": commutingTime
+      "travelMode": commuMethod,
+      "time": commuTime
     },
     //workTime: workTime,
     "jc": occupations,
