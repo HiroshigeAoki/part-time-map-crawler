@@ -49,8 +49,13 @@ loader.load().then(() => {
       search(query).then(results => {
         console.log("検索結果", results)
         //map作成、中心地設定
-        const map = displayMap(latlng);
-        getStoreInfo(map, results)
+        if (results.length > 0){
+          const map = createMap(latlng);
+          getStoreInfo(map, results)
+          //addResults(map, results)
+        } else{
+          createMap(latlng);
+        }
       });
   }
 
@@ -112,21 +117,30 @@ async function search(query){
     .then(res => {
         if(res.ok){
             console.log("検索成功!")
-            return res
+            return res.json()
+        }
+        else if(res.status==404){
+          alert("選択した条件では見つかりませんでした。")
+          return []
+        }
+        else if(res.status==442){
+          alert("検索条件が不正です。("+res.text()+")")
+          return []
         }
         else{
             res.text().then(err => {
-              //TODO: エラーメッセージをちゃんとする。
+              console.log(err)
+              alert(err)
               throw Prommise.reject(new Error(err))
             })
         }
     })
-  const results = await response.json()
+  const results = await response
   return results
 }
 
 //中心地の設定
-function displayMap(latlng) {
+function createMap(latlng) {
     const mapOptions = {
         center: latlng ,
         zoom: 15
