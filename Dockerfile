@@ -8,7 +8,7 @@ ENV PYTHONUNBUFFERED 1
 ENV LANG C.UTF-8
 ENV TZ Asia/Tokyo
 
-WORKDIR /code/backend
+WORKDIR /code/crawler
 
 # Install dependencies
 COPY requirements.txt .
@@ -17,5 +17,4 @@ RUN pip install --upgrade pip && \
 
 COPY . .
 
-CMD ["/bin/bash", "startup.sh"]
-EXPOSE 8000
+CMD [ "bash", "startup.sh"]

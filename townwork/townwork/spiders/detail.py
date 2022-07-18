@@ -12,7 +12,7 @@ from normalize_japanese_addresses import normalize
 
 
 from townwork.items import Job
-from crawler.organize_db import OrganizeDB
+from crawler.utils.organize_db import OrganizeDB
 
 class DetailSpider(CrawlSpider):
     name = 'detail'
