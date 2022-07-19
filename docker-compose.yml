@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - .:/code/crawler
