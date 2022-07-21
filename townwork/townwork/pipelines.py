@@ -17,12 +17,15 @@ class ValidationPipline:
     def process_item(self, item, spider):
         mandatory_attr = ["name", "url", "deadline", "is_definite", "loc", "is_loc_accurate"]
         arbitrary_attr = ["address", "wages", "type_of_job", "preferences", "es", "target", "working_hours", "work_period", "fetched_date", "jc", "jmc"]
+        parttime_es = ["アルバイト", "パート"]
         for attr in mandatory_attr:
             if attr not in item.keys():
                 raise DropItem(colored(f"Missing {attr}! {item['url']}", 'red'))
         for attr in arbitrary_attr:
             if attr not in item.keys():
                 warnings.warn(colored(f"Missing {attr}! {item['url']}", 'green'))
+        if len(set(item.get('es')) & set(parttime_es)) == 0:
+            raise DropItem(colored(f"アルバイトとパート以外削除。 {item['url']}", 'red')) 
 
         return item
 
